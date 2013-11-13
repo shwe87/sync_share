@@ -104,12 +104,12 @@ exports.auth = function (datas){
 						To access this; response.json.access_token, etc
 						*/
 						tabWorker.port.emit('signedIn','Signed in correctly');
-						/*datas.token = response.json.access_token;
+						datas.token = response.json.access_token;
 						datas.token_type = response.json.token_type;
 						datas.expires_in = response.json.expires_in;
 						datas.id_token = response.json.id_token;
-						datas.refresh_token = response.json.refresh_token;*/
-						datas.accessDatas = response.json;
+						datas.refresh_token = response.json.refresh_token;
+						//datas.accessDatas = response.json;
 						datas.authSuccess = true;
 						console.log('auth: Elements  = '+JSON.stringify(datas));				
 					}		
@@ -138,6 +138,7 @@ exports.searchFile = function(searchDatas){
 	var title = searchDatas.title;
 	var token = searchDatas.token;
 	var dataToSave = searchDatas.dataToSave;
+	console.log("SEARCH FOR = " + title);
 	//If dataToSave null then there is nothing to save
 	//ElementToSave: 
         var exists = false;	//Lets assume that it doesn't exist.
@@ -164,11 +165,11 @@ exports.searchFile = function(searchDatas){
         			var fileId = '';
 		               	if (response.json.items.length == 0){
 		               		// If there is no item then the file doesn't exist-
-		               		//console.log("Doesn't Exist " + response.text);                       		
+		               		console.log("Search File Doesn't Exist " + response.text);                       		
 		               	}
 		               	else{
 		               		//The files exists.
-		               		//console.log("It exists " + response.text);
+		               		console.log("Search File It exists " + title);
 		               		exists = true;
 		               		dLoadURL = response.json.items[0].downloadUrl;
 		               		fileId = response.json.items[0].id;		
@@ -192,13 +193,13 @@ function uploadFile(uploadData){
 	//var fileData = uploadData[0];
 	var dataToSave = uploadData.dataToSave;
 	var token = uploadData.token;
-	var resumable_sesion = uploadData.resumable_sesion;
+	var resumable_sesion_uri = uploadData.resumable_sesion_uri;
 	//var token = uploadData[2];
 	
 	var str = JSON.stringify(dataToSave);
 	console.log("Going to upload = " + str ) ;
 	var session = Request({		
-		url: resumable_sesion,
+		url: resumable_sesion_uri,
 		//contentType: 'application/json; charset=UTF-8',
 		headers: {'Authorization': 'Bearer '+ token,'Content-Type':'application/json; charset=UTF-8'},
 		content: str,
