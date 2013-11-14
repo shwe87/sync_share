@@ -151,7 +151,7 @@ exports.searchFile = function(searchDatas){
                 	//console.log();
                 	console.log("Search File = " + response.statusText);
                 	console.log("Search File = " + response.status);
-                	//console.log("Search File = " + JSON.stringify(response.headers));
+                	console.log("Search File = " + JSON.stringify(response.headers));
                 	//console.log("Search File = " + response.text);
                 	if (response.status == '401'){	//Invalid token; Unauthorized
                 		//auth('searchFile',[title,dataToSave]);
@@ -165,7 +165,8 @@ exports.searchFile = function(searchDatas){
         			var fileId = '';
 		               	if (response.json.items.length == 0){
 		               		// If there is no item then the file doesn't exist-
-		               		console.log("Search File Doesn't Exist " + response.text);                       		
+		               		console.log("Search File Doesn't Exist " + response.text); 
+		               		exists = false;                      		
 		               	}
 		               	else{
 		               		//The files exists.
@@ -185,32 +186,35 @@ exports.searchFile = function(searchDatas){
         searchFor.get();
 }
 
+
 //Upload the file
 function uploadFile(uploadData){
 	//uploadFile = [fileData, resumable_sesion_uri]
 	//fileData = [exists, title, dataToSave, token, dLoadURL, fileId]
+	
+
 	console.log('uploadFile: UPLOAD!!!!');
 	//var fileData = uploadData[0];
 	var dataToSave = uploadData.dataToSave;
 	var token = uploadData.token;
-	var resumable_sesion_uri = uploadData.resumable_sesion_uri;
+	var resumable_sesion = uploadData.resumable_sesion_uri;
 	//var token = uploadData[2];
 	
 	var str = JSON.stringify(dataToSave);
 	console.log("Going to upload = " + str ) ;
 	var session = Request({		
-		url: resumable_sesion_uri,
+		url: resumable_sesion,
 		//contentType: 'application/json; charset=UTF-8',
-		headers: {'Authorization': 'Bearer '+ token,'Content-Type':'application/json; charset=UTF-8'},
+		headers: {'Authorization': 'Bearer '+ token/*'Content-Length':38*/,'Content-Type':'application/json; charset=UTF-8'},
 		content: str,
 		onComplete: function(response){			
-			/*console.log('Upload file = ' + response.text);
+			console.log('Upload file = ' + response.text);
 			console.log('Upload file status = ' + response.status);
 			console.log('Upload File status text = ' + response.statusText);
-			console.log('Headers = ' + JSON.stringify(response.headers));*/
+			console.log('Headers = ' + JSON.stringify(response.headers));
 			console.log('uploadFile: Upload completed!!');
 			resumable_sesion = response.headers.Location;
-			uploadData.resumable_sesion = resumable_sesion;
+			uploadData.resumable_sesion_uri = resumable_sesion;
 			//var elementToSave = uploadData[3];
 			emit(exports, 'saveComplete', uploadData); 
 		}
@@ -223,7 +227,7 @@ function uploadFile(uploadData){
 //Start the upload process:
 exports.startUpload = function startUpload(fileData){
 	//fileData = [exists, title, dataToSave, token, dLoadURL, fileId]
-	var exists = fileData.exists;
+	var exists = filData.exists;
 	var fileName = fileData.title;
 	var dataToSave = fileData.dataToSave;
 	var token = fileData.token;
@@ -245,11 +249,10 @@ exports.startUpload = function startUpload(fileData){
 			content: str,
 			onComplete: function(response){
 				console.log('Start Upload file = ' + response.statusText+'\r\n\r\n');
-				/*console.log('Start Upload file status = ' + response.status+'\r\n\r\n');
+				console.log('Start Upload file status = ' + response.status+'\r\n\r\n');
 				console.log('Start Upload File status text = ' + response.statusText+'\r\n\r\n');
-				console.log('Start Headers = ' + JSON.stringify(response.headers+'\r\n\r\n'));*/
+				console.log('Start Headers = ' + JSON.stringify(response.headers+'\r\n\r\n'));
 				resumable_sesion_uri = response.headers.Location;
-				fileData.resumable_sesion_uri = resumable_sesion_uri;
 				//console.log(resumable_sesion_uri);
 				//this.uploadFile(dataToSave, resumable_sesion_uri, token);
 				//this.listen;
@@ -259,7 +262,7 @@ exports.startUpload = function startUpload(fileData){
 				var resumable_sesion = uploadData[1];
 				var token = uploadData[2];
 				*/
-				
+				fileData.resumable_sesion_uri = response.headers.Location;
 				uploadFile(fileData);
 				
 						
@@ -280,14 +283,14 @@ exports.startUpload = function startUpload(fileData){
 		        //content: str,
 		        onComplete: function(response){
 		                console.log('Start Upload file = ' + response.statusText+'\r\n\r\n');
-				/*console.log('Start Upload file status = ' + response.status+'\r\n\r\n');
+				console.log('Start Upload file status = ' + response.status+'\r\n\r\n');
 				console.log('Start Upload File status text = ' + response.statusText+'\r\n\r\n');
-				console.log('Start Headers = ' + JSON.stringify(response.headers+'\r\n\r\n'));*/
+				console.log('Start Headers = ' + JSON.stringify(response.headers+'\r\n\r\n'));
 		                resumable_sesion_uri = response.headers.Location;
 		                //this.uploadFile(dataToSave, resumable_sesion_uri, token);
 		                //emit(exports, 'startComplete', [dataToSave, resumable_sesion_uri, token ]); 
-		                //this.listen; 
-		                fileData.resumable_sesion_uri = resumable_sesion_uri;    
+		                //this.listen;   
+		                fileData.resumable_sesion_uri = response.headers.Location;
 		                uploadFile(fileData);      
 		        }        
 		});
@@ -295,16 +298,6 @@ exports.startUpload = function startUpload(fileData){
 	}
 	
 }
-
-
-
-/*exports.saveData = function(fileName, dataToSave,token, resumable_sesion_uri){
-
-	this.searchFile(fileName, dataToSave, token);
-	this.on('startUpload',this.handleSave);
-}*/
-
-
 
 
 
