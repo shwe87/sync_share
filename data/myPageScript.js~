@@ -1,11 +1,27 @@
 /*http://visionwidget.com/ajax-gif-loader-generators.html
 LOADING ICON = https://drive.google.com/file/d/0B-QM_tizf_jpQUNpeUR1V05TWmM/edit?usp=sharing
 SYNCING ICON = https://drive.google.com/file/d/0B-QM_tizf_jpQUNpeUR1V05TWmM/edit?usp=sharing
-*/
-/*CONSTANTS:*/
-const LOADING_ICON = 'https://drive.google.com/file/d/0B-QM_tizf_jpQUNpeUR1V05TWmM/edit?usp=sharing';
-const SYNCING_ICON = 'https://drive.google.com/file/d/0B-QM_tizf_jpQUNpeUR1V05TWmM/edit?usp=sharing';
 
+HISTORY_ICON from = http://www.softicons.com/free-icons/toolbar-icons/fatcow-hosting-icons-by-fatcow/clock-history-frame-icon
+TAB_ICON from = http://www.softicons.com/free-icons/toolbar-icons/iconza-orange-icons-by-turbomilk/tab-icon
+DROPBOX ICON = http://i39.tinypic.com/2pyt4xk.jpg
+Bookmark = http://i39.tinypic.com/2lmvqdl.jpg
+GOOGLE_DRIVE = http://i39.tinypic.com/24mgxt5.jpg
+HISTORY_ICON = <http://i40.tinypic.com/b5jyqa.jpg
+SHWETA = http://i42.tinypic.com/27x31jm.jpg
+Syncing = http://i42.tinypic.com/103trti.jpg
+tab = http://i39.tinypic.com/mry2i9.jpg
+loading = http://i43.tinypic.com/1zq8vop.jpg
+*/
+
+
+/*CONSTANTS:*/
+const LOADING_ICON = 'http://i43.tinypic.com/1zq8vop.jpg';
+const SYNCING_ICON = 'http://i42.tinypic.com/103trti.jpg';
+const SYNC_ICON = 'http://i44.tinypic.com/212fy3l.jpg';
+
+
+/*TABS_ICON = http://i43.tinypic.com/2z4jvkk.jpg*/
 //As soon as the page loads, create the effect in the main table:
 createEffectInTable('cell','selected');
 createEffectInTable('bCell','bSelected');
@@ -74,31 +90,36 @@ self.port.on('show',function(elementsToShow){
 		mainContent.appendChild(p);
 	}
 	else{
-		var key = Object.keys(elementsToShow);
-		var all = elementsToShow[key];
-		if (all.length == 0){
-			var mainContent = document.getElementById('mainContent');
-			var p = document.createElement('p');
-			p.innerHTML = 'Nothing Saved yet!';
-			mainContent.appendChild(p);
 		
-		}else{
-			for each (var element in all){
-				//var rowCell = document.createElement('tr');
-				//var columnCell = document.createElement('td');
+		var key = Object.keys(elementsToShow);
+		try{
+			var all = elementsToShow[key];
+			if (all.length == 0){
 				var mainContent = document.getElementById('mainContent');
-				var p1 = document.createElement('p');
-				p1.setAttribute('id','title');
-				p1.innerHTML = element.title;
-				mainContent.appendChild(p1);
-				//document.insertBefore(image,p1);
-				var p2 = document.createElement('p');
-				p2.setAttribute('class','url');
-				p2.innerHTML = element.url;
-				var line = document.createElement('hr');
-				mainContent.appendChild(p2);
-				mainContent.appendChild(line);
+				var p = document.createElement('p');
+				p.innerHTML = 'Nothing Saved yet!';
+				mainContent.appendChild(p);
+		
+			}else{
+				for each (var element in all){
+					//var rowCell = document.createElement('tr');
+					//var columnCell = document.createElement('td');
+					var mainContent = document.getElementById('mainContent');
+					var p1 = document.createElement('p');
+					p1.setAttribute('id','title');
+					p1.innerHTML = element.title;
+					mainContent.appendChild(p1);
+					//document.insertBefore(image,p1);
+					var p2 = document.createElement('p');
+					p2.setAttribute('class','url');
+					p2.innerHTML = element.url;
+					var line = document.createElement('hr');
+					mainContent.appendChild(p2);
+					mainContent.appendChild(line);
+				}
 			}
+		}catch(e){
+			console.log("ERROR!!!");
 		}
 	}
 
@@ -156,6 +177,7 @@ self.port.on('showhistory',function(elementsToShow){
 
 
 self.port.on('takeAllHistory',function(allHistory){
+	clean('loading');
 	var historyList = document.getElementById('historyList');
 	//console.log("History length = " +  allHistory.length);
 	if (allHistory.length == 0){
@@ -274,6 +296,9 @@ function createEffectInTable(cellName, selectedType){
 				//console.log('I have been clicked on!! ' + event.target.innerHTML);
 				//Get the element that was clicked on:
 				var clickedElement = event.target;
+				if (clickedElement.tagName == 'DIV'){
+					var clickedElement = clickedElement.parentNode;
+				}
 				//Get the class of the clicked element to know if it was already selected.
 				var clickedClass = clickedElement.getAttribute('class');
 				//var selectedOne = clickedClass.split(selectedType);
@@ -291,9 +316,34 @@ function createEffectInTable(cellName, selectedType){
 					clickedElement.setAttribute('class' + clickedClass+' click');
 				
 				}*/
+				//console.log("Clicked on " + clickedElement.nodeName);
+				var clickedChildren = event.target.children;
+				console.log("ClickedChildren length = " + clickedChildren.length );
+				
 				var whatWasClicked = new Object();
-				whatWasClicked.node = event.target.innerHTML;
-				whatWasClicked.id = event.target.id;
+				if (clickedChildren.length == 0){
+					var parentNode = event.target.parentNode;
+					whatWasClicked.id = parentNode.id;
+					if (event.target.tagName == 'DIV' || event.target.tagName == 'div'){
+						console.log("INNER HTML = " + event.target.innerHTML);
+						whatWasClicked.node = event.target.innerHTML;
+					}
+					
+				}
+				else{
+					whatWasClicked.id = event.target.id;
+					for each(var child in clickedChildren){
+						console.log('Clicked node name ' + child.nodeName);
+						console.log('Clicked tag name ' + child.tagName);
+						if (child.tagName == 'DIV' || child.tagName == 'div'){
+							console.log("HTML = " + child.innerHTML);
+							whatWasClicked.node = child.innerHTML;
+						}
+					}
+				}
+				
+				//whatWasClicked.node = event.target.innerHTML;
+				
 				console.log("CLicked on = " + event.target.id);
 				self.port.emit('cellClicked',whatWasClicked);
 				console.log("\t\t\t\t cellClicked Sent.");
@@ -337,9 +387,9 @@ function hideHiddenRow(){
 
 //Set the hidden row's content with the options.
 function setOptions(option1, option2){
-	var optionOne = document.getElementById('oneOption');
+	var optionOne = document.getElementById('oneOptionDiv');
 	optionOne.innerHTML = option1;
-	var optionTwo = document.getElementById('twoOption');
+	var optionTwo = document.getElementById('twoOptionDiv');
 	optionTwo.innerHTML = option2;
 }
 
@@ -375,7 +425,7 @@ function makeLiContent(title, url){
 	imageSpan.setAttribute('class','hidden');
 	var image = document.createElement('img');
 	image.setAttribute('title','Click to save.');
-	image.setAttribute('src','https://cdn3.iconfinder.com/data/icons/block/32/sync-512.png');
+	image.setAttribute('src',SYNC_ICON);
 	image.setAttribute('width','15px');
 	image.setAttribute('height','15px');
 	imageSpan.appendChild(image);
