@@ -22,7 +22,7 @@ Synch & Share
 	<th id="twoOption" class="bCell"><div id="twoOptionDiv">Saved Bookmarks</div></th>
 <tr>
 <tr>
-<th id="tabsCell" class="cell selected"><div>Tabs</div></th>
+<th id="tabsCell" class="cell selected"><div id="tabsCellDiv">Tabs</div></th>
 	<td id="mainContent" class="content" rowspan="3" colspan="2">
 		
 		<!--table id="tabsTable"  style="display:table">
@@ -55,11 +55,12 @@ Synch & Share
 </tr>
 
 <tr>
-<th id="bookmarksCell" class="cell"><div>Bookmarks</div></th>
+<th id="bookmarksCell" class="cell"><div id="bookmarksCellDiv">Bookmarks</div></th>
 
 </tr>
 <tr>
-<th id="historyCell" class="cell"><div>History</div></th>
+<th id="historyCell" class="cell"><div id="historyCellDiv">History</div></th>
+<th id="settingsCell" class="cell"><div id="settingsCellDiv">Settings</div></th>
 </tr>
 </table> 
 </center>

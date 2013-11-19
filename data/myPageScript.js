@@ -253,7 +253,11 @@ self.port.on('takeABookmark',function(bookmarkToShow){
 	}
 	else{
 		var bookmarkLI = document.createElement('LI');	
-		bookmarkLI.setAttribute('class','hidden');
+		var ifMain = (parentId == 2 || parentId == 3 || parentId == 5);
+		//console.log("IS FROM PARENT ID = " + ifMain);
+		if(ifMain == false){
+			bookmarkLI.setAttribute('class','hidden');
+		}
 
 		var liDiv = makeLiContent(aBookmark.title,aBookmark.url);
 		bookmarkLI.appendChild(liDiv);
@@ -397,19 +401,21 @@ function setOptions(option1, option2){
 function putLoading(){
 	console.log("\t\t\t\tAdding loading.....");
 	var loading = document.getElementById('loading');
-	var loadingIconSpan = document.createElement('span');
-	var loadingIcon = document.createElement('img');
-	loadingIcon.setAttribute('src',LOADING_ICON);
-	//loadingIcon.setAttribute('width','15px');
-	//loadingIcon.setAttribute('height','15px');
-	loadingIcon.setAttribute('title','Loading. Please wait.....');
-	loadingIconSpan.appendChild(loadingIcon);
-	loading.appendChild(loadingIconSpan);
+	if (loading.innerHTML == ''){
+		var loadingIconSpan = document.createElement('span');
+		var loadingIcon = document.createElement('img');
+		loadingIcon.setAttribute('src',LOADING_ICON);
+		//loadingIcon.setAttribute('width','15px');
+		//loadingIcon.setAttribute('height','15px');
+		loadingIcon.setAttribute('title','Loading. Please wait.....');
+		loadingIconSpan.appendChild(loadingIcon);
+		loading.appendChild(loadingIconSpan);
 	
-	var loadingText = document.createElement('span');
-	loadingText.innerHTML = 'Loading. Please wait.....';
-	loading.appendChild(loadingText);
-	console.log('\t\t\t\tLoading added complete.\r\n\r\n');
+		var loadingText = document.createElement('span');
+		loadingText.innerHTML = 'Loading. Please wait.....';
+		loading.appendChild(loadingText);
+		console.log('\t\t\t\tLoading added complete.\r\n\r\n');
+	}
 
 }
 
@@ -439,8 +445,11 @@ function makeLiContent(title, url){
 	
 	//Make the url and add it to the div
 	var urlP = document.createElement('p');
-	urlP.innerHTML = url;
-	urlP.setAttribute('class','url');
+	var urlA = document.createElement('a');
+	urlA.setAttribute('href',url);
+	urlA.innerHTML = url;
+	urlA.setAttribute('class','url');
+	urlP.appendChild(urlA);
 	div.appendChild(urlP);
 	
 	//Make the line and add it to the div.

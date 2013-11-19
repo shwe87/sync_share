@@ -627,7 +627,7 @@ function downloadData(datas){
 
 
 
-function getData(searchDatas){
+function read(searchDatas){
 	searchDatas.save = false;
 	if (ifAuthenticated()){
 		searchFile(searchDatas);
@@ -645,7 +645,7 @@ exports.getData = getData;
 	--> @param {string} writeDatas.title - the file's title: can be tabs.json, bookmarks.json or history.json
 	--> @param {string} writeDatas.token - the  
 **********************************************************************************************************************************/
-function write(writeDatas){
+function save(writeDatas){
 	writeDatas.save = true;
 	if (ifAuthenticated()){
 		searchFile(writeDatas);

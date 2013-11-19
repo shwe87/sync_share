@@ -24,7 +24,7 @@
 		    "label": "Dropbox"
 		},
 		{
-		    "value": "gapi",
+		    "value": "googledrive",
 		    "label": "Google Drive"
 		},
 		{

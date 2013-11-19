@@ -1,13 +1,16 @@
 /*Mozilla sdk modules load*/
-var data = require("sdk/self").data;
-var tabs = require("sdk/tabs");
-var pageMod = require("sdk/page-mod");
-var panel = require("./panelControl.js");
-var timer = require('sdk/timers');
+const data = require("sdk/self").data;
+const tabs = require("sdk/tabs");
+const pageMod = require("sdk/page-mod");
+const panel = require("./panelControl.js");
+const timer = require('sdk/timers');
+const preferences = require("sdk/simple-prefs");
+const {Cc, Ci, Cu} = require("chrome");
 
 /*Variables*/
 var openMenuTabWorker;
 var myContextMenu;
+
 
 
 /*My modules*/
@@ -17,7 +20,7 @@ var gapi = require('./gapi.js');
 var xulControl = require('./xulControl.js');
 var contextMenu = require('./contextMenu.js');
 var dropbox = require('./dropbox.js');
-
+var server = require('./serverControl.js');
 
 
 const TABS_FILE = 'tabs.json';
@@ -29,7 +32,7 @@ const REWRITE = 'rewrite';
 const SHOW = 'show';
 
 var panelMessage;
-var {Cc, Ci, Cu} = require("chrome");
+
 
 
 
@@ -424,7 +427,7 @@ function handleContextMenu(clickedDetails){
 		dropbox.save(newData);
 	}
 	else if (clickedNode.className == 'history'){
-		newData.title = BOOKMARKS_FILE;
+		newData.title = HISTORY_FILE;
 		newData.dataToSave = dataToSave;
 		newData.token = dropBox.access_token;
 		//gapi.write(newData);
@@ -432,8 +435,9 @@ function handleContextMenu(clickedDetails){
 	}
 }
 
-
-
+function handleChanges(){
+	server.changeServer()
+}
 
 
 
@@ -441,6 +445,10 @@ function handleContextMenu(clickedDetails){
 /*var windows = require("sdk/window/utils");*/
 
 exports.main = function(options, callbacks) {
+    //Set server:
+    server.setServer();
+    //Listen for the button Save changes in the preferences panel.
+    preferences.on("saveChanges", handleChanges);
     //Create the panel:
     panelMessage = panel.Panel();
     //Add the tab context menu:
@@ -463,22 +471,7 @@ exports.main = function(options, callbacks) {
     //Whenever the bookmark sends us information:
     bookmarks.on('take',takeABookmark);
     
-    //When the user is unauthorized:
-    gapi.on('Unauthorized',handleUnAuth);
-    //When the authentication process is completed:
-    gapi.on('authComplete',handleAuth);
-    //Display the downloaded data.  
-    gapi.on('display',handleDisplay);
-    //To show the corresponding message
-    gapi.on('showMessage',handleShowMessage);
     
-    dropbox.on('Unauthorized',handleUnAuth);
-    //When the authentication process is completed:
-    dropbox.on('authComplete',handleAuth);
-    //Display the downloaded data.  
-    dropbox.on('display',handleDisplay);
-    //To show the corresponding message
-    dropbox.on('showMessage',handleShowMessage);
     
     /*
     var window = windows.getMostRecentBrowserWindow();

@@ -48,7 +48,7 @@ exports.nameFolder = function(ID){
 	else if (ID == 3){
 		name = "Bookmarks Toolbar";
 	}
-	else{//ID = 5
+	else{
 		name = "Unsorted Bookmarks";
 	}
 	return name;

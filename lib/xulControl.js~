@@ -11,7 +11,6 @@ var window = mediator.getMostRecentWindow("navigator:browser");
 //Get the XUL elements as DOM
 var document = mediator.getMostRecentWindow("navigator:browser").document; 
 
-/*XUL items unique identifiers*/
 const TAB_MENU = myId+'syncTabMenu';
 const OPEN_MENU = myId+'openMenu';
 const SAVE_TABS_MENU = myId+'saveAllTabs';
