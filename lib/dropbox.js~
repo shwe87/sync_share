@@ -51,7 +51,24 @@ function setAuthenticated(){
 	cookies.setCookie(COOKIE_URL,cookieString);
 }
 
-
+function handleResponse(response){
+	var aux = response.status.substring(0,1);	//To detect the 5xx error, get only the first number
+	var message = {};
+	message.type = 'error';
+	if (response.status == '429' || response.status == '503'){
+		message.msg = 'Internal server error! Please try again later!';
+	}
+	else if (response.status == '507'){
+		message.msg = 'You are over Dropbox storage quota. Make some more space!';
+	}
+	else if (aux == '5' && response.status != '507'){
+		message.msg = 'Server error! Visit status.dropbox.com for more information.';
+	}
+	else{
+		message.msg = 'An error has occured. Please try again later!'
+	}
+	emit(exports,'showMessage',message);
+}
 
 function auth(datas){
 	tabs.open({
@@ -78,7 +95,7 @@ function auth(datas){
 						console.log("AUTH STATUS TEXT = " + response.statusText);
 						console.log("AUTH HEADERS = " + JSON.stringify(response.headers));
 						console.log("AUTH JSON = " + JSON.stringify(response.json));
-						if(response.statusText =='OK'){
+						if(response.status =='200'){
 							/*		
 							{"access_token":A TOKEN,
 							"token_type":"bearer",
@@ -90,11 +107,13 @@ function auth(datas){
 							//datas.accessDatas = response.json;
 							datas.authSuccess = true;
 							setAuthenticated();
-							console.log('auth: Elements  = '+JSON.stringify(datas));				
 							
+							console.log('auth: Elements  = '+JSON.stringify(datas));				
+	
 						}
 						else{
 							datas.authSuccess = false;
+							handleResponse(response);
 						}
 						emit(exports, 'authComplete', datas);
 						if (datas.authSuccess){
@@ -274,6 +293,7 @@ function handleBeforeWrite(datas){
 function getData(datas){
 	var fileName = datas.title;
 	var token = datas.token;
+	var ifContinue = true;
 	var getData = Request({		
 		url: GET_URL + fileName,
 		//contentType: 'application/x-www-form-urlencoded',
@@ -282,8 +302,8 @@ function getData(datas){
 		onComplete: function(response){
 			console.log("GET FILE Status = " + response.status);
 			console.log("GET FILE STATUS TEXT = " + response.statusText);
-			console.log("GET FILE HEADERS = " + JSON.stringify(response.headers));
-			console.log("GET FILE JSON = " + response.json);
+			//console.log("GET FILE HEADERS = " + JSON.stringify(response.headers));
+			console.log("GET FILE JSON = " + JSON.stringify(response.json));
 			if (datas.save == true){
 				datas.action = REWRITE;
 			}
@@ -304,11 +324,22 @@ function getData(datas){
 				datas.downloadedContent = response.json;
 				//handleDownloadCompleted(datas);
 			}
-			if (datas.action == REWRITE){
-				handleBeforeWrite(datas);
+			else if(response.status == '401'){
+				ifContinue = false;
+				auth(datas);
 			}
 			else{
-				handleOnlyShow(datas);
+				ifContinue = false;
+				handleResponse(response);
+			}
+			
+			if (ifContinue){
+				if (datas.action == REWRITE){
+					handleBeforeWrite(datas);
+				}
+				else{
+					handleOnlyShow(datas);
+				}
 			}
 			
 			
@@ -328,6 +359,7 @@ function write(datas){
 	var rev = datas.rev;
 	var saveDatas = JSON.stringify(datas.dataToSave);
 	var URL = PUT_FILE_URL+fileName;
+	var ifContinue = true;
 	if (rev != null ){
 		URL = URL+'?parent_rev='+rev;
 	}
@@ -349,13 +381,15 @@ function write(datas){
 				message.type = 'correct';
 				/*uploadData.msg = 'Correctly Saved!';
 				uploadData.msgType = 'correct';*/
-				;			
+							
+			}
+			else if(response.status == '401'){
+				ifContinue = false;
+				auth(datas);
 			}
 			else{	
 				datas.success = false;
-				var message = {};
-				message.msg = 'Save failed!';
-				message.type = 'error';				
+				handleResponse(response);			
 			}
 			emit(exports, 'showMessage', message)	
 		}	
