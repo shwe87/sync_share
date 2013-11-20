@@ -56,9 +56,15 @@ function handleDisplay(toShowDatas){
 }
 
 function handleShowMessage(messageToShow){
-	panelMessage.write(messageToShow);
-	panelMessage.show();
-	timer.setTimeout(hidePanel, 5000);	//5 seconds
+	/*if (messageToShow.type == 'info'){
+		panelWithWidget.write(messageToShow);
+		panelWithWidget.show();
+	}
+	else{*/
+		panelMessage.write(messageToShow);
+		panelMessage.show();
+		timer.setTimeout(hidePanel, 5000);	//5 seconds
+	//}
 }
 
 
@@ -73,7 +79,7 @@ function saveTabs(tabsToSave){
 	}
 	var message = {};
 	message.msg = 'Loading...';
-	message.type = 'correct';
+	message.type = 'info';
 	handleShowMessage(message);
 	//Get the favicon icon:
 	var dataToSave = new Array();
@@ -88,6 +94,7 @@ function saveTabs(tabsToSave){
 	save.title = TABS_FILE;
 	save.dataToSave = dataToSave;
 	server.save(save);
+	
 
 }
 
@@ -323,13 +330,16 @@ function handleContextMenu(clickedDetails){
 
 
 
-
+var windows = require("sdk/window/utils");
 
 exports.main = function(options, callbacks) {
+    windows.getMostRecentBrowserWindow().alert(options.loadReason);
     //Start the server control:
     server.start();
     //Create the panel:
-    panelMessage = panel.Panel();
+    panelMessage = panel.Panel(false);
+    //Create the panel with widget:
+    panelWithWidget = panel.Panel(true);
     //Add the tab context menu:
     xulControl.addAllOptions();
     //Add the save all tabs menu item in the tool menu
@@ -349,6 +359,9 @@ exports.main = function(options, callbacks) {
     
     //Whenever the bookmark sends us information:
     bookmarks.on('take',takeABookmark);
+    
+    server.on('showMessage', handleShowMessage);
+    server.on('display',handleDisplay);
 
     
 };

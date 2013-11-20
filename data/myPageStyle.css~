@@ -2,17 +2,22 @@ table{
     border-spacing: 0; 
     border-collapse:separate;
     width:90%; 
-    border:0;  
+    border:0; 
+    background: url(http://i39.tinypic.com/hwe4qe.jpg); 
+}
+table,body{
+    height:100%;
+
 }
 
-table,body{
+table{
    font-family: Palatino,Georgia,Times;
-   height: 100%;
    background: -moz-linear-gradient(to right, #e2e2d2, #ecece1, #d8d8c2); /*Fx 3.6-15*/
    background: linear-gradient( to right, #e2e2d2, #ecece1, #d8d8c2);
    background-repeat: no-repeat;
    background-attachment: fixed;
 }
+
 
 ul{
 	overflow:hidden;

@@ -354,6 +354,7 @@ function getData(datas){
 
 
 function write(datas){
+	
 	var fileName = datas.title;
 	var token = datas.token;
 	var rev = datas.rev;
@@ -369,6 +370,7 @@ function write(datas){
 		headers: {'Host':'www.api-content.dropbox.com.com','Authorization':'Bearer ' + token,'Content-length':saveDatas.length,'Content-Type':'text/plain; charset=UTF-8'},
 		content: saveDatas,
 		onComplete: function(response){
+			var message = {};
 			console.log("SAVE DATA Status = " + response.status);
 			console.log("SAVE DATA STATUS TEXT = " + response.statusText);
 			console.log("SAVE DATAE HEADERS = " + JSON.stringify(response.headers));
@@ -376,7 +378,6 @@ function write(datas){
 			console.log("SAVE DATA TEXT = " + response.text);	
 			if (response.status == '200'){
 				datas.success = true;
-				var message = {};
 				message.msg = 'Correctly Saved!';
 				message.type = 'correct';
 				/*uploadData.msg = 'Correctly Saved!';
@@ -385,12 +386,17 @@ function write(datas){
 			}
 			else if(response.status == '401'){
 				ifContinue = false;
+				message.msg = 'Not Signed in!';
+				message.type = 'error';
 				auth(datas);
 			}
 			else{	
 				datas.success = false;
+				message.msg = 'Save failed!';
+				message.type = 'error';	
 				handleResponse(response);			
 			}
+			console.log("SAVE = " + message.msg);
 			emit(exports, 'showMessage', message)	
 		}	
 	});
@@ -420,7 +426,9 @@ exports.read = read;
 function save(saveDatas){
 	saveDatas.save = true;
 	if (ifAuthenticated()){
+		var message = {'msg':'Saving....','type':'info'};
 		getData(saveDatas);	//If write read and then overwrite.
+		emit(exports, 'showMessage',message);
 	}
 	else{
 		var message = {};

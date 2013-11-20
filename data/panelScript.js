@@ -1,5 +1,5 @@
 self.port.on('write',function(messageInfo){
-	console.log("Writing a message.....");
+	console.log("Writing a message....." + messageInfo.msg);
 	var messageContainer = document.getElementById('messageContainer');
 	if (messageContainer != null){
 		var message = document.getElementById('message');

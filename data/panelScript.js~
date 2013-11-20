@@ -4,7 +4,7 @@ self.port.on('write',function(messageInfo){
 	if (messageContainer != null){
 		var message = document.getElementById('message');
 		message.innerHTML = messageInfo.msg;
-		messageContainer.setAttribute('class',messageInfo.type);
+		message.setAttribute('class',messageInfo.type);
 		//message.setAttribute('class',messageInfo.messageType);	
 	}
 	

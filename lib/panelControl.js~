@@ -2,6 +2,8 @@ var { Class } = require("sdk/core/heritage");
 
 var panel = require("sdk/panel");
 var data = require("sdk/self").data;
+var widget = require("sdk/widget");
+const timer = require('sdk/timers');
 
 var { emit, on, once, off } = require("sdk/event/core");
 exports.on = on.bind(null, exports);
@@ -15,15 +17,13 @@ exports.removeListener = function removeListener(type, listener) {
 var Panel = Class({
   initialize: function initialize() {
   	this.panelWithMessage = panel.Panel({
-  		position: {
-  			top: 0
-  		},
   		width: 400,
-  		height: 60,
+  		height: 102,
   		focus: true,
     		contentURL: data.url('panel.html'),
     		contentScriptFile: data.url('panelScript.js')
     	});
+    	
   },
   type: 'Panel',
   write: function write(message) {
@@ -36,7 +36,13 @@ var Panel = Class({
   	}
   },
   show: function show(){
-  	this.panelWithMessage.show();
+        if (!this.panelWithMessage.isShowing){
+	  	var showOptions = {'position':{'top':150}};
+	  	this.panelWithMessage.show(showOptions);
+	 }
+	 else{
+	 	timer.setTimeout(this._show, 3000);
+	 }
   }
   
 });

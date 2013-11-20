@@ -98,7 +98,7 @@ function setAuthenticated(){
 function handleResponse(response){
 	var message = {};
 	message.type = 'error';
-	message.msg = response.json.error.message;
+	message.msg = response.json.error.message + " Please try again!";
 	emit(exports,'showMessage',message);
 }
 
@@ -156,10 +156,10 @@ function auth(datas){
 						emit(exports, 'authComplete', datas);
 						if (datas.authSuccess){
 							if (datas.save){
-								write(datas);
+								save(datas);
 							}
 							else if (!datas.save){
-								getData(datas);
+								read(datas);
 							}
 					
 						}
