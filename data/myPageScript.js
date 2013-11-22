@@ -15,487 +15,185 @@ loading = http://i43.tinypic.com/1zq8vop.jpg
 */
 
 
-/*CONSTANTS:*/
-const LOADING_ICON = 'http://i43.tinypic.com/1zq8vop.jpg';
-const SYNCING_ICON = 'http://i42.tinypic.com/103trti.jpg';
-const SYNC_ICON = 'http://i44.tinypic.com/212fy3l.jpg';
+
 
 
 /*TABS_ICON = http://i43.tinypic.com/2z4jvkk.jpg*/
 //As soon as the page loads, create the effect in the main table:
-createEffectInTable('cell','selected');
-createEffectInTable('bCell','bSelected');
 
-//When the page loads for the first time:
-self.port.on('start',function(clickedElement){
-	//When the tab opens, open the bookmark table.
-	var cell = document.getElementById('bookmarksCell');
-	cell.click();
-});
+/*
+<body>
+<center>
+<div class="logo">
+<center><img src="http://i43.tinypic.com/2lka2s2.jpg" title="logo by Shweta"/><br>
+<span class="small">Sync & Share</span>
+</center>
+
+</div>
+</div>
+<nav class="menu">
+	<ul>
+		<li id="tab"><div id="tabCell" onClick="alert('Hello')">Tabs</div></li>
+		<br><br>
+		<li id="bookmark"><div id="bookmarkCell" onClick="alert('Hello')">Bookmarks</div></li>
+		<br><br>
+		<li id="history"><div id="historyCell" onClick="alert('Hello')">History</div></li><br><br>
+	</ul>
+</nav>
+
+</center>
+<div id="contentTitle"><hr>Saved Tabs:<hr></div>
+<div id="content">
+  <div class="item">
+  <p id="title">A title</p>
+  <a href="http://www.urjc.es">www.urjc.es</a>
+  </div>
+<div class="item">
+  <p id="title">A title</p>
+  <a href="http://www.urjc.es">www.urjc.es</a>
+  </div>
+<div class="item">
+  <p id="title">A title</p>
+  <a href="http://www.urjc.es">www.urjc.es</a>
+  </div>
+<div class="item">
+  <p id="title">A title</p>
+  <a href="http://www.urjc.es">www.urjc.es</a>
+  </div>
+
+</div>
+*/
 
 
-//Get the table ready depending on which element is going to be shown:
-self.port.on('getTableReady',function(element){
-	//This is to decide if the hidden row is going to be shown or not
-	var createEffect = false;	//Create the hidden/shown row effect:
-	clean('mainContent');
-	//clean('loading');
-		
-	if (element == 'bookmarks'){
-		setOptions('Bookmarks','Saved Bookmarks');
-		createEffect = true;
-	}
-	else if(element == 'history'){
-		setOptions('History','Saved History');
-		createEffect = true;
-	}
-	
-	if (createEffect){
-		//Bookmarks, history
-		showHiddenRow();
-		//createEffectInTable('bCell','bSelected');
-		
-		var mainContent = document.getElementById('mainContent');
-		var UL = document.createElement('ul');
-		UL.setAttribute('id',element+'List');
-		mainContent.appendChild(UL);
-	}
-	else{
-		//putLoading();
-		hideHiddenRow();
-		/*var loading = document.getElementById('loading');
-		loading.innerHTML = 'Loading. Please wait.....'*/
-	}
-	
-});
-self.port.on('clean',function(msg){
-	clean(msg);
-
-});
-//Get the hidden row ready:
-self.port.on('initHiddenRow',initHiddenRow);
-
+startUp();
 //Show the saved tabs. Display the elements in the content.
-self.port.on('show',function(elementsToShow){
+self.port.on('show',function(toShow){
 	//console.log(JSON.stringify(elementsToShow));
 	//First clean the table, delete the previous items that were showing:
 	//clean('mainContent');
 	//var tabsTable = document.getElementById('tabsTable');
-	clean('loading');
 
-	if (elementsToShow == null){
-		var mainContent = document.getElementById('mainContent');
-		var p = document.createElement('p');
-		p.innerHTML = 'Nothing Saved yet!';
-		mainContent.appendChild(p);
+	var data = toShow.data;
+	var element = toShow.element;
+	var server = toShow.server;
+	var toClean = server+element+'Content';
+	window.alert("To CLEAN " + toClean);
+	clean(toClean);
+	if (data == null){
+	        showTitle(element, server);
+	        createItem('Nothing saved yet!', null, server,true, element);
 	}
 	else{
-		
-		var key = Object.keys(elementsToShow);
+		var key = Object.keys(data);
 		try{
-			var all = elementsToShow[key];
+			var all = data[key];
+			/*if (key == 'tabs'){	
+				creTitle('Saved Tabs');	
+			}else if (key == 'bookmarks'){
+				createTitle('Saved Bookmarks');
+			}else if (key == 'history'){
+				createTitle('Saved History');
+			}*/
+			window.alert(key);
+			showTitle(key, server);
+			//createTitle('Saved ' + element);
 			if (all.length == 0){
-				var mainContent = document.getElementById('mainContent');
-				var p = document.createElement('p');
-				p.innerHTML = 'Nothing Saved yet!';
-				mainContent.appendChild(p);
+				createItem('Nothing saved yet!', null, server,true, element);
+				window.alert("Nothing saved!");
 		
 			}else{
-				for each (var element in all){
+				for each (var e in all){
 					//var rowCell = document.createElement('tr');
 					//var columnCell = document.createElement('td');
-					var mainContent = document.getElementById('mainContent');
-					var p1 = document.createElement('p');
-					p1.setAttribute('id','title');
-					p1.innerHTML = element.title;
-					mainContent.appendChild(p1);
+					createItem(e.title, e.url, server,false, element);
+					/*var content = document.getElementById('content');
+					var div = document.createElement('div');
+					div.setAttribute('class','item');
+					var p = document.createElement('p');
+					p.setAttribute('id','title');
+					p.innerHTML = element.title;
+					div.appendChild(p);
 					//document.insertBefore(image,p1);
-					var p2 = document.createElement('p');
-					p2.setAttribute('class','url');
-					p2.innerHTML = element.url;
-					var line = document.createElement('hr');
-					mainContent.appendChild(p2);
-					mainContent.appendChild(line);
+					var a = document.createElement('a');
+					a.setAttribute('href',element.url);
+					a.innerHTML = element.url;
+					div.appendChild(a),
+					content.appendChild(div);*/
 				}
 			}
 		}catch(e){
-			console.log("ERROR!!!");
+			//console.log("ERROR!!!");
+			window.alert('ERROR!');
 		}
 	}
-
-});
-
-/*
-self.port.on('showbo',function(elementsToShow){
-	clean('loading');
-	var allBookmarks = elementsToShow.bookmarks;
-
-	for each(var bookmark in allBookmarks){
-		var mainContent = document.getElementById('mainContent');
-		var p1 = document.createElement('p');
-		p1.setAttribute('id','tabsTitle');
-		p1.innerHTML = bookmark.title;
-		mainContent.appendChild(p1);
-		//document.insertBefore(image,p1);
-		var p2 = document.createElement('p');
-		p2.setAttribute('class','url');
-		p2.innerHTML = bookmark.url;
-		var line = document.createElement('hr');
-		mainContent.appendChild(p2);
-		mainContent.appendChild(line);
-	}
-
-});
-
-self.port.on('showhistory',function(elementsToShow){
-	clean('loading');
-	var allBookmarks = elementsToShow.bookmarks;
-	for each(var bookmark in allBookmarks){
-		var mainContent = document.getElementById('mainContent');
-		var p1 = document.createElement('p');
-		p1.setAttribute('id','tabsTitle');
-		p1.innerHTML = bookmark.title;
-		mainContent.appendChild(p1);
-		//document.insertBefore(image,p1);
-		var p2 = document.createElement('p');
-		p2.setAttribute('class','url');
-		p2.innerHTML = bookmark.url;
-		var line = document.createElement('hr');
-		mainContent.appendChild(p2);
-		mainContent.appendChild(line);
-	}
-
-});
-
-*/
 	
 
-
-/*Synch foto = https://cdn3.iconfinder.com/data/icons/block/32/sync-512.png*/
-
+});
 
 
+/*********FUNCTIONS*********************************************/
+function startUp(){
+	var tabsCell = document.getElementById('tab');
+	tabsCell.addEventListener('click',function(event){
+		self.port.emit('showTabs',null);
+	});
+	
+	var bookmarksCell = document.getElementById('bookmark');
+	bookmarksCell.addEventListener('click',function(event){
+		self.port.emit('showBookmarks',null);
+	});
+	var historyCell = document.getElementById('history');
+	historyCell.addEventListener('click',function(event){
+		self.port.emit('showHistory',null);
+	});
 
-self.port.on('takeAllHistory',function(allHistory){
-	clean('loading');
-	var historyList = document.getElementById('historyList');
-	//console.log("History length = " +  allHistory.length);
-	if (allHistory.length == 0){
-		var historyP = document.createElement('p');
-		historyP.innerHTML = "No history to show.";
-		historyList.appendChild(historyP);
-	}
-	else{
-		for each(var aHistory in allHistory){
-			var aHistoryLI = document.createElement('li');
-			//aHistoryLI.setAttribute('class','history');
-			var favQuery = "http://www.google.com/s2/favicons?domain="+aHistory.url;
-			aHistoryLI.style.background = "url('"+favQuery+"') no-repeat left top";
-			aHistoryLI.style.margin = '0px';
-			/*Padding = Top, Right, Left, Bottom.*/
-			aHistoryLI.style.padding = '0px 0px 0px 5px';	//Modify only the space between the icon and the title.
-			var liDiv = makeLiContent(aHistory.title, aHistory.url);
-			liDiv.setAttribute('class','history');
-			aHistoryLI.appendChild(liDiv);
-			historyList.appendChild(aHistoryLI);
-		
+}
+
+function showTitle(element, server){
+	var titleToShow = server+element+'Title';
+	var contentTitle = document.getElementById(titleToShow);			
+	if (contentTitle){
+		/*var hr = document.createElement('hr');
+		contentTitle.appendChild(hr);
+		var textNode = document.createTextNode(title);
+		contentTitle.appendChild(textNode);
+		var hr1 = document.createElement('hr');
+		contentTitle.appendChild(hr1);*/
+		var thisClass = contentTitle.className;
+		window.alert(thisClass);
+		if (thisClass == 'title hidden'){
+			var newClass = 'title shown';
+			contentTitle.setAttribute('class',newClass);
 		}
-	}
-
-
-});
-
-
-
-
-
-self.port.on('takeABookmark',function(bookmarkToShow){
-	/*https://cdn3.iconfinder.com/data/icons/block/32/sync-512.png*/
-	
-	var ifFolder = bookmarkToShow[1];
-	var aBookmark = bookmarkToShow[0];
-	var parentId = aBookmark.parentId;
-	//console.log('takeABookmark received : ' + aBookmark.title);
-	var parent = document.getElementById(parentId);
-	if (ifFolder){
-		//var aDiv = document.createElement('div');
-		var bookmarkUL = document.createElement('ul');
-		bookmarkUL.setAttribute('id',aBookmark.itemId);
-		//bookmarkUL.setAttribute('class','title');
-		var bookmarkText = document.createTextNode(aBookmark.title);
-		bookmarkUL.appendChild(bookmarkText);
-		var line = document.createElement('hr');
-		bookmarkUL.appendChild(line);
-		var favQuery = "http://www.gettyicons.com/free-icons/103/pretty-office-2/png/256/folder_256.png";
-		bookmarkUL.style.background = "url('"+favQuery+"') no-repeat left top";
-		bookmarkUL.style.backgroundSize = "15px 15px";
-		bookmarkUL.style.margin = '0px';
-		bookmarkUL.style.padding = '0px 0px 0px 20px';	//Modify only the space between the icon and the title.
-		bookmarkUL.addEventListener('click',function(event){
-			//console.log("I was clicked!!  " + event.target.nodeName);
-			var whatWasClicked = event.target;
-			if (whatWasClicked.nodeName == 'UL'){ //Only when a folder is clicked
-				var ULChildren = bookmarkUL.children;	//The third child is the LI elements
-				if (ULChildren != undefined){
-					for (var i=0;i<ULChildren.length;i++){
-						//console.log(i+" ULChildren = " + ULChildren[i].innerHTML);
-						if (ULChildren[i].className == 'hidden'){
-							ULChildren[i].setAttribute('class','showLi');
-						}
-						else if(ULChildren[i].className == 'showLi'){
-							ULChildren[i].setAttribute('class','hidden');
-						}
-					}
-				}
-			}
-		});
-		parent.appendChild(bookmarkUL);
-	}
-	else{
-		var bookmarkLI = document.createElement('LI');	
-		var ifMain = (parentId == 2 || parentId == 3 || parentId == 5);
-		//console.log("IS FROM PARENT ID = " + ifMain);
-		if(ifMain == false){
-			bookmarkLI.setAttribute('class','hidden');
-		}
-
-		var liDiv = makeLiContent(aBookmark.title,aBookmark.url);
-		bookmarkLI.appendChild(liDiv);
-		liDiv.setAttribute('class','bookmark');
-		
-		var favQuery = "http://www.google.com/s2/favicons?domain="+aBookmark.url;
-		bookmarkLI.style.background = "url('"+favQuery+"') no-repeat left top";
-		bookmarkLI.style.margin = '0px';
-		/*Padding = Top, Right, Left, Bottom.*/
-		bookmarkLI.style.padding = '0px 0px 0px 5px';	//Modify only the space between the icon and the title.
-		
-		
-		parent.appendChild(bookmarkLI);	
-	}
-
-	
-	
-});
-
-
-
-
-/*************FUNCTIONS****************/
-
-
-function createEffectInTable(cellName, selectedType){
-	console.log("\t\t\t\t Creating effect in table " + cellName + "," + selectedType);
-	var td = document.getElementsByClassName(cellName);
-	
-	//Add an event listener to all the cell "menu"
-	for (var i=0;i<td.length;i++){
-		//var ifClickedAdded = td[i].className.split(' click');
-		//if (ifClickedAdded.length == 1 ){
-			//console.log("\t\t\t\t Doesn't have click!!!!!");
-			//td[i].setAttribute('class',td[i].getAttribute('class')+' click');	//Click added
-			td[i].addEventListener('click',function(event){
-				putLoading();
-				//var loading = document.getElementById('loading');
-				//loading.innerHTML = 'Loading. Please wait.......'
-				//console.log('I have been clicked on!! ' + event.target.innerHTML);
-				//Get the element that was clicked on:
-				var clickedElement = event.target;
-				if (clickedElement.tagName == 'DIV'){
-					var clickedElement = clickedElement.parentNode;
-				}
-				//Get the class of the clicked element to know if it was already selected.
-				var clickedClass = clickedElement.getAttribute('class');
-				//var selectedOne = clickedClass.split(selectedType);
-				if (clickedClass == cellName){//If it is not the selected one:
-				//if (selectedOne.length == 1 ){ //Not the selected onw
-					//Get the selected one.
-					var selected = document.getElementsByClassName(selectedType);
-					//Make it unselected (a normal cell) 
-					selected[0].setAttribute('class',cellName);
-					//Make selected to the clicked cell.
-					clickedElement.setAttribute('class',cellName+' '+selectedType);
-				}//
-				/*else{//The selected one
-					console.log("Adding click");
-					clickedElement.setAttribute('class' + clickedClass+' click');
-				
-				}*/
-				//console.log("Clicked on " + clickedElement.nodeName);
-				var clickedChildren = event.target.children;
-				console.log("ClickedChildren length = " + clickedChildren.length );
-				
-				var whatWasClicked = new Object();
-				if (clickedChildren.length == 0){
-					var parentNode = event.target.parentNode;
-					whatWasClicked.id = parentNode.id;
-					if (event.target.tagName == 'DIV' || event.target.tagName == 'div'){
-						console.log("INNER HTML = " + event.target.innerHTML);
-						whatWasClicked.node = event.target.innerHTML;
-					}
-					
-				}
-				else{
-					whatWasClicked.id = event.target.id;
-					for each(var child in clickedChildren){
-						console.log('Clicked node name ' + child.nodeName);
-						console.log('Clicked tag name ' + child.tagName);
-						if (child.tagName == 'DIV' || child.tagName == 'div'){
-							console.log("HTML = " + child.innerHTML);
-							whatWasClicked.node = child.innerHTML;
-						}
-					}
-				}
-				
-				//whatWasClicked.node = event.target.innerHTML;
-				
-				console.log("CLicked on = " + event.target.id);
-				self.port.emit('cellClicked',whatWasClicked);
-				console.log("\t\t\t\t cellClicked Sent.");
-		
-					
-			});
-			
-		//}else{
-		//	console.log("\t\t\t HAS CLICK");
-		//}
+		var thisClass = contentTitle.className;
+		window.alert(thisClass);
 	}
 }
 
-//Get the hidden row ready
-function initHiddenRow(){
-	console.log('\t\t\t\t initHiddenRow');
-	var twoOption = document.getElementById('twoOption');
-	twoOption.setAttribute('class','bCell');
-	var oneOption = document.getElementById('oneOption');
-	oneOption.setAttribute('class','bCell bSelected');
 
-}
-
-//Shows the hidden row.
-function showHiddenRow(){
-	var hiddenRow = document.getElementById('hiddenRow');
-		if (hiddenRow != null){
-			hiddenRow.style.display='table-row';
-			var content = document.getElementById('mainContent');
-			content.setAttribute('class','content bContent');
-	}
-}
-
-//Hides the hidden row.
-function hideHiddenRow(){
-	var hiddenRow = document.getElementById('hiddenRow');
-	hiddenRow.style.display = 'none';
-	var content = document.getElementById('mainContent');
-	content.setAttribute('class','content');
-}
-
-//Set the hidden row's content with the options.
-function setOptions(option1, option2){
-	var optionOne = document.getElementById('oneOptionDiv');
-	optionOne.innerHTML = option1;
-	var optionTwo = document.getElementById('twoOptionDiv');
-	optionTwo.innerHTML = option2;
-}
-
-//Set the loading message with its icon:
-function putLoading(){
-	console.log("\t\t\t\tAdding loading.....");
-	var loading = document.getElementById('loading');
-	if (loading.innerHTML == ''){
-		var loadingIconSpan = document.createElement('span');
-		var loadingIcon = document.createElement('img');
-		loadingIcon.setAttribute('src',LOADING_ICON);
-		//loadingIcon.setAttribute('width','15px');
-		//loadingIcon.setAttribute('height','15px');
-		loadingIcon.setAttribute('title','Loading. Please wait.....');
-		loadingIconSpan.appendChild(loadingIcon);
-		loading.appendChild(loadingIconSpan);
-	
-		var loadingText = document.createElement('span');
-		loadingText.innerHTML = 'Loading. Please wait.....';
-		loading.appendChild(loadingText);
-		console.log('\t\t\t\tLoading added complete.\r\n\r\n');
-	}
-
-}
-
-
-
-//Function that makes the <li> element's content, will be a div with two <p>
-function makeLiContent(title, url){
-	//Always a link, never a folder.
-	//Make the div element.
+function createItem(title, url, server, nothing, element){
+	//var theServer = server+'Content';
+	var toPutIn = server+element+'Content';
+	var content = document.getElementById(toPutIn);
 	var div = document.createElement('div');
-	
-	var imageSpan = document.createElement('span');
-	imageSpan.setAttribute('class','hidden');
-	var image = document.createElement('img');
-	image.setAttribute('title','Click to save.');
-	image.setAttribute('src',SYNC_ICON);
-	image.setAttribute('width','15px');
-	image.setAttribute('height','15px');
-	imageSpan.appendChild(image);
-	div.appendChild(imageSpan);
-	
-	//Make the title and add it to the div
-	var titleSpan = document.createElement('span');
-	titleSpan.setAttribute('class','title');
-	titleSpan.innerHTML = title;
-	div.appendChild(titleSpan);
-	
-	//Make the url and add it to the div
-	var urlP = document.createElement('p');
-	var urlA = document.createElement('a');
-	urlA.setAttribute('href',url);
-	urlA.innerHTML = url;
-	urlA.setAttribute('class','url');
-	urlP.appendChild(urlA);
-	div.appendChild(urlP);
-	
-	//Make the line and add it to the div.
-	var line = document.createElement('hr');
-	line.setAttribute('class','liLine');
-	div.appendChild(line);
-	
-	div.addEventListener('mouseover',function(event){
-		//console.log('Hovered over ' + event.target.nodeName);		
-		var DIVChildren = event.target.parentNode.children;	//The third child is the LI elements
-		if (DIVChildren != undefined){
-			for (var i=0;i<DIVChildren.length;i++){
-				//console.log(i+" DIVChildren = " + DIVChildren[i].className);
-				if (DIVChildren[i].className == 'hidden'){
-					//console.log("IMG = " + DIVChildren[i].innerHTML);
-					DIVChildren[i].className = 'show';
-				}
-				
-			}
-		}
-			
-	});
-	
-	div.addEventListener('mouseout',function(event){
-		//console.log(event.target.parentNode);
+	div.setAttribute('class','item');
+	var p = document.createElement('p');
+	p.setAttribute('id','title');
+	p.innerHTML = title;
+	div.appendChild(p);
+	if (!nothing){
+		//document.insertBefore(image,p1);
+		var a = document.createElement('a');
+		a.setAttribute('href',url);
+		a.innerHTML = url;
+		div.appendChild(a);
 		
-		var DIVChildren = event.target.parentNode.children;	//The third child is the LI elements
-		if (DIVChildren != undefined){
-			for (var i=0;i<DIVChildren.length;i++){
-				//console.log(i+" DIVChildren = " + DIVChildren[i].className);
-				if (DIVChildren[i].className == 'show'){
-					//console.log("IMG = " + DIVChildren[i].innerHTML);
-					DIVChildren[i].className = 'hidden';
-				}
-				
-			}
-		}
-			
-	});
-	return div;
+	}
+	content.appendChild(div);
+	
+
+
 }
-
-
-
-
-
 
 function clean(elementToClean){
 	var toClean = document.getElementById(elementToClean);
@@ -507,4 +205,7 @@ function clean(elementToClean){
 	//Clean also the loading message:
 	
 }
+
+
+
 
