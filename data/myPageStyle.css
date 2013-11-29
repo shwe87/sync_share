@@ -18,7 +18,7 @@ nav.menu div:hover,
 nav.menu div:active,
 div.content .item:hover
 {
-        background:url(http://i44.tinypic.com/207nsr9.jpg);
+        background:url(http://i44.tinypic.com/207nsr9.jpg);	/*When an item is hovered, a personal background is shown.*/
 }
 .menu div{
         text-align: center;

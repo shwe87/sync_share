@@ -66,6 +66,10 @@ div.hidden{
 	visibility: hidden;
 }
 
+div.shown{
+	visibility: block;
+}
+
 div.title{
     	font-size: x-large;
     	text-align: center;
